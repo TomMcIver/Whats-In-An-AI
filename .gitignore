@@ -1,23 +1,83 @@
+# ---------------------------------------------------------------
+# AI tooling / assistant artefacts -- never commit these
+# ---------------------------------------------------------------
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+.claudeignore
+.cursor/
+.cursorrules
+.cursorignore
+.aider*
+.github/copilot-instructions.md
+.codeium/
+.continue/
+.windsurfrules
+.roo/
+.clinerules
+ollama/
+*.prompt
+*.prompts.md
+
+# ---------------------------------------------------------------
+# Model weights / checkpoints / datasets -- keep the repo source-only
+# ---------------------------------------------------------------
+*.pt
+*.pth
+*.bin
+*.h5
+*.hdf5
+*.ckpt
+*.pkl
+*.pickle
+*.onnx
+*.safetensors
+*.tflite
+*.pb
+*.gguf
+*.ggml
+*.npz
+*.npy
+*.joblib
+checkpoints/
+weights/
+models/
+datasets/
+runs/
+wandb/
+mlruns/
+.ipynb_checkpoints/
+
+# ---------------------------------------------------------------
 # OS
+# ---------------------------------------------------------------
 .DS_Store
 Thumbs.db
 desktop.ini
 
+# ---------------------------------------------------------------
 # Editors
+# ---------------------------------------------------------------
 .vscode/
 .idea/
 *.swp
 
+# ---------------------------------------------------------------
 # Environment / secrets
+# ---------------------------------------------------------------
 .env
 .env.*
 !.env.example
 
+# ---------------------------------------------------------------
 # Logs
+# ---------------------------------------------------------------
 *.log
 npm-debug.log*
 
+# ---------------------------------------------------------------
 # Dependencies / build output
+# ---------------------------------------------------------------
 node_modules/
 dist/
 build/
