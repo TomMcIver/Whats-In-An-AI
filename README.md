@@ -1,78 +1,114 @@
 # What's In An AI
 
-A visual field guide to machine learning. **97 models** across 9 categories — every
-major family from linear regression to Mamba — each one drawn as a diagram and
-explained in four steps.
+Machine learning models you can actually **train in the browser** and watch learn —
+weights, biases and activations updating live, not diagrams of them.
 
-Open `index.html` in a browser. That's it. No build step, no dependencies, no
-server, no tracking.
+No ML library. The networks are written from scratch in TypeScript so every
+weight, gradient and activation is a plain number the UI can read and draw.
+
+```bash
+npm install
+npm run dev       # http://localhost:5173
+npm run verify    # correctness harness for the network engine
+npm run build     # production build
+```
 
 ---
 
-## What's in it
+## Status
 
-| Category | Models | Covers |
-|---|---:|---|
-| Classical ML | 15 | regression, trees, forests, boosting, SVM, k-NN, Bayes, clustering, PCA, t-SNE |
-| Neural Foundations | 8 | perceptron, MLP, activations, backprop, optimisers, regularisation, embeddings, losses |
-| Convolutional Nets | 12 | LeNet, AlexNet, VGG, ResNet, Inception, DenseNet, EfficientNet, MobileNet, U-Net, R-CNN, YOLO |
-| Recurrent & Sequence | 8 | RNN, LSTM, GRU, BiRNN, seq2seq, attention, CTC, TCN |
-| Transformers | 13 | Transformer, self-attention, positional encoding, BERT, GPT, T5, ViT, Swin, CLIP, Whisper, MoE, Mamba |
-| Generative Models | 11 | autoencoder, VAE, GAN, DCGAN, StyleGAN, CycleGAN, diffusion, latent diffusion, flows, EBMs |
-| Graph Networks | 7 | GNN, GCN, GAT, GraphSAGE, GIN, graph transformers, KG embeddings |
-| Reinforcement Learning | 10 | Q-learning, DQN, policy gradient, actor-critic, PPO, SAC, AlphaZero, model-based, RLHF, MARL |
-| Specialised & Historical | 13 | Hopfield, RBM, DBN, SOM, capsules, siamese, NTM, spiking, RBF, reservoir, NeRF, neural ODE, ELM |
+| Lab | State | What it does |
+|---|---|---|
+| **Neural Network** | ✅ working | Trains a real MLP on 2-D data. Live weights, biases, activations, decision boundary, loss curve. |
+| Classical | ⬜ not built | Linear/logistic regression, k-means, decision tree, k-NN fitting step by step. |
+| Convolution | ⬜ not built | Filters sliding over an input, feature maps, filters changing during training. |
+| Attention | ⬜ not built | Live attention matrix and per-head weights over a typed sentence. |
 
-Every entry has a diagram, a four-step walkthrough, the key idea, the trade-off it
-makes, and what it's typically used for.
+Unbuilt tabs are visible but disabled — they are placeholders, not broken features.
+
+---
+
+## The Neural Network lab
+
+A genuine multilayer perceptron trained with mini-batch SGD, one epoch per tick.
+
+**What you can see**
+- **Edges** — one per weight. Colour is the sign, thickness and opacity are the magnitude.
+  Watch them thicken and flip sign as the network learns.
+- **Node rings** — each unit's bias, warm for positive and cool for negative.
+- **Node fill** — that unit's activation for the probe point, so you can trace information
+  moving forward through the layers.
+- **Decision boundary** — the network's prediction resampled over the whole plane every epoch.
+- **Loss curve** — training solid, held-out test dashed. When the gap opens, that's overfitting,
+  and on the default settings it does.
+- **Weights & biases table** — every parameter and its last gradient step, live. Click any node
+  to isolate the weights feeding it.
+
+**What you can change**
+
+Dataset (circle, XOR, gaussian, spiral, moons), sample count, noise, input features
+(X₁, X₂, X₁², X₂², X₁X₂, sin X₁, sin X₂), hidden layer count and width, activation
+(tanh / ReLU / sigmoid / linear), learning rate, batch size and seed.
+
+**Things worth trying**
+- Set hidden layers to **0** on XOR. It cannot get above chance — a single layer draws a single
+  line. Add one hidden layer and it solves it immediately.
+- Set activation to **linear**. Depth stops helping entirely, because stacked linear layers
+  collapse into one linear layer.
+- Turn on **X₁²** and **X₂²** for the circle dataset. A network with no hidden layer can now
+  solve it — good features and depth substitute for one another.
+- Push the **learning rate** to 1.0 and watch training diverge.
+
+---
+
+## Is the maths right?
+
+`npm run verify` checks the engine two ways:
+
+1. **Gradient check** — the analytic gradient from backprop against a numerical estimate.
+   Current agreement: **1.5 × 10⁻¹¹** relative error.
+2. **Learning behaviour**, including a case that must *fail*:
+
+```
+  gauss  [2,1]       loss 0.268 -> 0.038   train  99.0%   test  97.8%
+  xor    [2,1]       loss 0.911 -> 0.701   train  52.4%   test  44.4%   <- must fail
+  xor    [2,4,1]     loss 0.692 -> 0.026   train 100.0%   test  98.9%
+  circle [2,6,1]     loss 0.695 -> 0.012   train 100.0%   test  98.9%
+  spiral [2,8,8,1]   loss 0.716 -> 0.215   train  91.0%   test  85.6%
+```
+
+A model that passed the XOR-without-a-hidden-layer case would be wrong, not impressive.
 
 ---
 
 ## Layout
 
 ```
-index.html              page shell
-css/style.css           all styling, light + dark themes
-js/diagram.js           SVG engine — 14 reusable diagram primitives
-js/app.js               grid, detail panel, search, filtering
-js/data/*.js            one file per category, one file per branch
+src/
+  lib/
+    rng.ts          seeded RNG — training runs are reproducible
+    nn.ts           the MLP: forward, backprop, mini-batch SGD
+    datasets.ts     2-D toy datasets and input feature transforms
+  components/
+    NetworkGraph.tsx  the live network diagram
+    Charts.tsx        loss curve + decision boundary (canvas)
+  labs/
+    NeuralNetLab.tsx  training loop, controls, readouts
+  App.tsx           shell and tab routing
+  styles.css
+scripts/
+  verify-nn.ts      correctness harness (npm run verify)
 ```
 
-### Adding a model
-
-Append an object to the `models` array in the relevant `js/data/*.js` file:
-
-```js
-{
-  id:        'unique-slug',
-  name:      'Model Name',
-  aka:       'Other names it goes by',      // optional
-  year:      '2017',
-  learns:    'Supervised',
-  dataFor:   'What shape of data it takes',
-  tagline:   'One sentence, plain English.',
-  diagram:   { type: 'layers', cols: [...] },
-  how:       ['step one', 'step two', ...],  // *asterisks* render bold
-  keyIdea:   'The thing worth remembering.',
-  strength:  'What it is good at.',
-  limitation:'Where it falls down.',
-  usedFor:   ['tag', 'tag']
-}
-```
-
-### Diagram types
-
-`layers` · `blocks` · `stack` · `conv` · `recurrent` · `encdec` · `tree` · `graph`
-· `scatter` · `matrix` · `cycle` · `adversarial` · `hourglass` · `sequence`
-
-All are declarative and theme-aware — they draw from CSS custom properties, so
-diagrams follow light/dark automatically. See `js/diagram.js` for each spec.
+Internal imports use explicit `.ts` / `.tsx` extensions so the same source runs
+under both Vite and bare Node — which is what lets `npm run verify` execute the
+real engine rather than a copy of it.
 
 ---
 
 ## Branch workflow
 
-Work never lands on `main` directly. Three tiers:
+Nothing lands on `main` directly.
 
 ```
 feat/*  ->  staging  ->  main
@@ -80,46 +116,25 @@ fix/*   ->  staging  ->  main
 docs/*  ->  staging  ->  main
 ```
 
-- **`feat/*`, `fix/*`, `docs/*`** — one branch per unit of work. Each UI concern and
-  each content category got its own.
-- **`staging`** — integration branch. Everything merges here first, with
-  `--no-ff` so each feature stays a visible, revertable unit in the history.
-- **`main`** — only ever fast-forwarded from `staging` once staging is verified.
-
-```bash
-git checkout -b feat/my-thing staging
-# ... work ...
-git commit -m "Describe the change"
-git checkout staging
-git merge --no-ff feat/my-thing
-# verify, then:
-git checkout main
-git merge staging
-```
+`staging` is the integration branch; merges use `--no-ff` so each piece of work
+stays a visible, revertable unit. `main` is only fast-forwarded from `staging`
+once staging is verified.
 
 ---
 
 ## No AI files
 
-`.gitignore` blocks two classes of file from ever being committed:
+`.gitignore` blocks assistant artefacts (`CLAUDE.md`, `.claude/`, `.cursor/`,
+`.aider*`, Copilot instruction files) and model binaries and data (`*.pt`, `*.h5`,
+`*.onnx`, `*.safetensors`, `*.ckpt`, `*.gguf`, `checkpoints/`, `weights/`,
+`datasets/`, `wandb/`, `mlruns/`), along with `node_modules/` and `dist/`.
 
-- **Assistant artefacts** — `CLAUDE.md`, `.claude/`, `.cursor/`, `.aider*`,
-  Copilot instruction files, `.continue/`, `.windsurfrules`, and similar.
-- **Model binaries and data** — `*.pt`, `*.h5`, `*.onnx`, `*.safetensors`,
-  `*.ckpt`, `*.gguf`, `*.pkl`, plus `checkpoints/`, `weights/`, `models/`,
-  `datasets/`, `wandb/`, `mlruns/`.
-
-The repo stays source-only: HTML, CSS, JS and this README.
+The repo stays source-only.
 
 ---
 
-## Verifying
+## History
 
-The data files are plain JavaScript, so they can be checked outside a browser:
-
-```bash
-node --check js/data/*.js        # syntax
-```
-
-The site itself is static — open `index.html` directly, or serve the folder with
-any static file server.
+This started as a static reference guide to 97 model architectures. That version is
+still in git history on the `feat/*` branches from before the React rewrite, if the
+write-ups are ever wanted again.
