@@ -1,77 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>What's In An AI — a visual field guide to machine learning</title>
-<meta name="description" content="Every major type of machine learning model and neural network, drawn out and explained.">
-<link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-
-<header class="site-header">
-  <div class="wrap header-inner">
-    <div class="brand">
-      <span class="brand-mark" aria-hidden="true"></span>
-      <div>
-        <h1>What's In An AI</h1>
-        <p class="brand-sub">A visual field guide to machine learning</p>
-      </div>
-    </div>
-    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle colour theme">
-      <span data-theme-icon></span>
-    </button>
-  </div>
-</header>
-
-<div class="wrap layout">
-
-  <aside class="sidebar">
-    <div class="search-box">
-      <input id="search" type="search" placeholder="Search models…" autocomplete="off" aria-label="Search models">
-    </div>
-    <nav id="category-nav" class="category-nav" aria-label="Categories"></nav>
-    <p class="counts"><span id="count-shown">0</span> of <span id="count-total">0</span> models</p>
-  </aside>
-
-  <main id="main" class="main">
-    <div id="intro" class="intro">
-      <h2>Every kind of model, drawn out.</h2>
-      <p>
-        Machine learning is not one thing. It is a few hundred different ideas about how to turn
-        data into a decision, and most of them look completely different on the inside.
-        This is a map of them — pick anything on the left, or just scroll.
-      </p>
-    </div>
-    <div id="grid" class="grid"></div>
-    <p id="empty" class="empty" hidden>Nothing matches that search.</p>
-  </main>
-
-</div>
-
-<div id="detail" class="detail-overlay" hidden>
-  <div class="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detail-title">
-    <button id="detail-close" class="detail-close" type="button" aria-label="Close">&times;</button>
-    <div id="detail-body"></div>
-  </div>
-</div>
-
-<footer class="site-footer">
-  <div class="wrap">
-    <p>What's In An AI — a static, dependency-free visual reference. No tracking, no build step.</p>
-  </div>
-</footer>
-
-<script src="js/diagram.js"></script>
-<script src="js/data/classical-ml.js"></script>
-<script src="js/data/neural-foundations.js"></script>
-<script src="js/data/cnn.js"></script>
-<script src="js/data/rnn.js"></script>
-<script src="js/data/transformers.js"></script>
-<script src="js/data/generative.js"></script>
-<script src="js/data/graph.js"></script>
-<script src="js/data/reinforcement.js"></script>
-<script src="js/data/specialized.js"></script>
-<script src="js/app.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>app</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
