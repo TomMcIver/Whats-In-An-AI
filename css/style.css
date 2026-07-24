@@ -198,6 +198,8 @@ body {
   display: flex; align-items: flex-start; justify-content: center;
   padding: 40px 20px; overflow-y: auto;
 }
+/* a display value here would otherwise beat the UA rule for [hidden] */
+.detail-overlay[hidden] { display: none; }
 .detail-panel {
   background: var(--bg-raised); border: 1px solid var(--line);
   border-radius: 13px; box-shadow: var(--shadow);
