@@ -107,7 +107,7 @@
         '<span class="card-thumb">' + NS.diagram(m.diagram) + '</span>' +
         '<span class="card-title"><h3>' + escape(m.name) + '</h3>' +
           (m.year ? '<span class="card-year">' + escape(m.year) + '</span>' : '') + '</span>' +
-        '<p>' + escape(m.tagline || '') + '</p></button>';
+        '<p>' + inlineBold(m.tagline || '') + '</p></button>';
     });
 
     el.grid.innerHTML = html;
@@ -130,7 +130,7 @@
     var h = '<p class="d-kicker">' + escape(m._cat.name) + '</p>' +
       '<h2 id="detail-title">' + escape(m.name) + '</h2>' +
       (m.aka ? '<p class="d-aka">also called ' + escape(m.aka) + '</p>' : '') +
-      (m.tagline ? '<p class="d-tagline">' + escape(m.tagline) + '</p>' : '') +
+      (m.tagline ? '<p class="d-tagline">' + inlineBold(m.tagline) + '</p>' : '') +
       '<div class="d-figure">' + NS.diagram(m.diagram) + '</div>';
 
     if (m.how && m.how.length) {
@@ -141,8 +141,8 @@
     if (m.keyIdea) h += '<h4>The key idea</h4><p class="d-key">' + inlineBold(m.keyIdea) + '</p>';
     if (m.strength || m.limitation) {
       h += '<h4>Trade-off</h4><ul class="d-steps">';
-      if (m.strength)   h += '<li><strong>Good at:</strong> ' + escape(m.strength) + '</li>';
-      if (m.limitation) h += '<li><strong>Struggles with:</strong> ' + escape(m.limitation) + '</li>';
+      if (m.strength)   h += '<li><strong>Good at:</strong> ' + inlineBold(m.strength) + '</li>';
+      if (m.limitation) h += '<li><strong>Struggles with:</strong> ' + inlineBold(m.limitation) + '</li>';
       h += '</ul>';
     }
     if (m.usedFor && m.usedFor.length) {
