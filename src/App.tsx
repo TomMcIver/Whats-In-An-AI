@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NeuralNetLab } from './labs/NeuralNetLab.tsx';
 import { ClassicalLab } from './labs/ClassicalLab.tsx';
 import { ConvLab } from './labs/ConvLab.tsx';
+import { AttentionLab } from './labs/AttentionLab.tsx';
 
 type TabId = 'nn' | 'classical' | 'conv' | 'attention';
 
@@ -9,7 +10,7 @@ const TABS: { id: TabId; label: string; ready: boolean }[] = [
   { id: 'nn',        label: 'Neural Network', ready: true },
   { id: 'classical', label: 'Classical',      ready: true },
   { id: 'conv',      label: 'Convolution',    ready: true },
-  { id: 'attention', label: 'Attention',      ready: false },
+  { id: 'attention', label: 'Attention',      ready: true },
 ];
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
       {tab === 'nn' && <NeuralNetLab />}
       {tab === 'classical' && <ClassicalLab />}
       {tab === 'conv' && <ConvLab />}
+      {tab === 'attention' && <AttentionLab />}
     </div>
   );
 }

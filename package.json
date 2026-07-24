@@ -9,9 +9,10 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "verify": "node scripts/verify-nn.ts && node scripts/verify-conv.ts",
+    "verify": "node scripts/verify-nn.ts && node scripts/verify-conv.ts && node scripts/verify-attention.ts",
     "verify:nn": "node scripts/verify-nn.ts",
-    "verify:conv": "node scripts/verify-conv.ts"
+    "verify:conv": "node scripts/verify-conv.ts",
+    "verify:attn": "node scripts/verify-attention.ts"
   },
   "dependencies": {
     "react": "^19.2.7",
