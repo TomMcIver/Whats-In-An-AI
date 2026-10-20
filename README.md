@@ -149,14 +149,7 @@ visible, revertable unit. `main` is only fast-forwarded from `staging` once veri
 
 ---
 
-## No AI files
 
-`.gitignore` blocks assistant artefacts (`CLAUDE.md`, `.claude/`, `.cursor/`, `.aider*`,
-Copilot instruction files) and model binaries and data (`*.pt`, `*.h5`, `*.onnx`,
-`*.safetensors`, `*.ckpt`, `*.gguf`, `checkpoints/`, `weights/`, `datasets/`, `wandb/`,
-`mlruns/`), plus `node_modules/` and `dist/`. The repo stays source-only.
-
----
 
 ## History
 
