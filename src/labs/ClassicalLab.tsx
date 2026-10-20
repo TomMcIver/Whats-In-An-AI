@@ -25,7 +25,7 @@ const POS = '#d97a45';
 const NEG = '#5b8dbe';
 const SIZE = 360;
 
-export function ClassicalLab() {
+export function ClassicalLab({ guideAction }: { guideAction?: { step: number; id: number } | null }) {
   const [algo, setAlgo] = useState<Algo>('linreg');
   const [running, setRunning] = useState(false);
   const [tick, setTick] = useState(0);
@@ -50,6 +50,8 @@ export function ClassicalLab() {
   const logRef = useRef(new LogisticRegressionGD());
   const kmRef = useRef<KMeans | null>(null);
   const treeRef = useRef<DecisionTree | null>(null);
+  const guideRunRemaining = useRef(0);
+  const handledGuideAction = useRef<number | null>(null);
 
   const rebuild = useCallback(() => {
     linRef.current = new LinearRegressionGD();
@@ -59,7 +61,26 @@ export function ClassicalLab() {
     setTick(t => t + 1);
   }, [pts, split, k, seed]);
 
-  useEffect(() => { setRunning(false); rebuild(); }, [rebuild, algo]);
+  useEffect(() => { setRunning(false); guideRunRemaining.current = 0; rebuild(); }, [rebuild, algo]);
+
+  useEffect(() => {
+    if (!guideAction || handledGuideAction.current === guideAction.id) return;
+    handledGuideAction.current = guideAction.id;
+    guideRunRemaining.current = 0;
+    setRunning(false);
+    if (guideAction.step === 0) {
+      setAlgo('linreg'); setShape('curved'); setN(120);
+      setNoise(0.12); setSeed(7); setLr(0.35);
+      linRef.current = new LinearRegressionGD();
+      setTick(t => t + 1);
+    } else if (guideAction.step === 1) {
+      guideRunRemaining.current = 90;
+      setRunning(true);
+    } else if (guideAction.step === 2) {
+      setAlgo('knn'); setDataset('xor'); setKnnK(1);
+      setProbe({ x: 0.3, y: 0.3 });
+    }
+  }, [guideAction]);
 
   const knn = useMemo(() => new KNN(knnK, split.train), [knnK, split]);
 
@@ -74,6 +95,7 @@ export function ClassicalLab() {
       if (!grew) setRunning(false);
     } else setRunning(false);      // k-NN has nothing to step
     setTick(t => t + 1);
+    if (guideRunRemaining.current > 0 && --guideRunRemaining.current === 0) setRunning(false);
   }, [algo, reg, lr, split, pts]);
 
   useEffect(() => {
@@ -346,13 +368,13 @@ export function ClassicalLab() {
 
         <div className="grp">
           <div className="btnrow">
-            <button className="btn primary" onClick={() => setRunning(r => !r)} disabled={algo === 'knn'}>
+            <button className="btn primary" onClick={() => { guideRunRemaining.current = 0; setRunning(r => !r); }} disabled={algo === 'knn'}>
               {running ? '❚❚ Pause' : algo === 'knn' ? 'Nothing to fit' : '▶ Fit'}
             </button>
             <button className="btn" onClick={step} disabled={running || algo === 'knn'}>Step</button>
           </div>
           <div className="btnrow" style={{ marginTop: 6 }}>
-            <button className="btn" onClick={() => { setRunning(false); rebuild(); }}>Reset</button>
+            <button className="btn" onClick={() => { setRunning(false); guideRunRemaining.current = 0; rebuild(); }}>Reset</button>
           </div>
         </div>
       </aside>

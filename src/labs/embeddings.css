@@ -1,0 +1,22 @@
+.embeddings-map-card { margin-bottom: 16px; }
+.embeddings-map { display: block; width: 100%; max-height: 440px; margin-top: 14px; background: #191b19; border: 1px solid #383c35; border-radius: 7px; }
+.embeddings-axis { stroke: #3e433b; stroke-width: 1; stroke-dasharray: 3 6; }
+.embeddings-axis-label { fill: #686f64; font: 12px ui-monospace, monospace; }
+.embeddings-point { cursor: pointer; outline: none; }
+.embeddings-point circle { fill: #73947c; stroke: #b4c9ae; stroke-width: 1.5; transition: r .18s, fill .18s; }
+.embeddings-point circle.selected { fill: #dc9a58; stroke: #f5d1a3; stroke-width: 2; }
+.embeddings-point text { fill: #d2d6cb; font: 12px ui-monospace, monospace; paint-order: stroke; stroke: #191b19; stroke-width: 3px; pointer-events: none; }
+.embeddings-point text.selected { fill: #f4c58c; font-weight: 700; }
+.embeddings-point:focus-visible circle { stroke: #fff; stroke-width: 3; }
+.embeddings-map-foot { margin-top: 9px; color: #898d81; font-size: 11px; }
+.embeddings-panels { align-items: stretch; }
+.embeddings-rank-list { display: grid; gap: 8px; }
+.embeddings-rank { display: grid; grid-template-columns: 24px minmax(65px, 1fr) minmax(50px, 1.25fr) 46px; align-items: center; gap: 9px; width: 100%; padding: 7px 5px; border: 0; border-bottom: 1px solid #34372f; color: #d5d7cc; background: transparent; text-align: left; font-size: 12px; }
+button.embeddings-rank { cursor: pointer; }
+button.embeddings-rank:hover { background: #292d27; }
+.embeddings-rank-index { color: #7c8176; font: 10px ui-monospace, monospace; }
+.embeddings-rank-word { overflow: hidden; text-overflow: ellipsis; }
+.embeddings-rank-bar { display: block; height: 6px; overflow: hidden; border-radius: 4px; background: #343b32; }
+.embeddings-rank-bar i { display: block; height: 100%; border-radius: inherit; background: #8ea978; }
+.embeddings-rank strong { color: #b8cfa8; font: 11px ui-monospace, monospace; text-align: right; }
+@media (max-width: 640px) { .embeddings-rank { grid-template-columns: 22px minmax(60px, 1fr) minmax(35px, 1fr) 44px; gap: 6px; } }

@@ -12,7 +12,7 @@ import { RNG } from '../lib/rng.ts';
 import { GridView } from '../components/GridView.tsx';
 import { LossChart } from '../components/Charts.tsx';
 
-export function ConvLab() {
+export function ConvLab({ guideAction }: { guideAction?: { step: number; id: number } | null }) {
   const [nFilters, setNFilters] = useState(4);
   const [lr, setLr] = useState(0.01);
   const [seed, setSeed] = useState(3);
@@ -26,6 +26,8 @@ export function ConvLab() {
   const test = useMemo(() => makeShapeSet(60, seed + 500), [seed]);
 
   const netRef = useRef<ConvNet | null>(null);
+  const guideRunRemaining = useRef(0);
+  const handledGuideAction = useRef<number | null>(null);
   if (!netRef.current) netRef.current = new ConvNet(nFilters, SHAPES.length, seed);
 
   const rebuild = useCallback(() => {
@@ -33,13 +35,32 @@ export function ConvLab() {
     setTick(t => t + 1);
   }, [nFilters, seed]);
 
-  useEffect(() => { setRunning(false); rebuild(); }, [rebuild]);
+  useEffect(() => { setRunning(false); guideRunRemaining.current = 0; rebuild(); }, [rebuild]);
+
+  useEffect(() => {
+    if (!guideAction || handledGuideAction.current === guideAction.id) return;
+    handledGuideAction.current = guideAction.id;
+    guideRunRemaining.current = 0;
+    setRunning(false);
+    if (guideAction.step === 0) {
+      setNFilters(4); setLr(0.01); setSeed(3); setNTrain(120);
+      setProbeShape('cross'); setDrawn(null);
+      netRef.current = new ConvNet(4, SHAPES.length, 3);
+      setTick(t => t + 1);
+    } else if (guideAction.step === 1) {
+      guideRunRemaining.current = 12;
+      setRunning(true);
+    } else if (guideAction.step === 2) {
+      setDrawn(drawShape('cross', new RNG(147), false));
+    }
+  }, [guideAction]);
 
   const net = netRef.current!;
 
   const step = useCallback(() => {
     netRef.current!.trainEpoch(train, lr);
     setTick(t => t + 1);
+    if (guideRunRemaining.current > 0 && --guideRunRemaining.current === 0) setRunning(false);
   }, [train, lr]);
 
   useEffect(() => {
@@ -145,13 +166,13 @@ export function ConvLab() {
 
         <div className="grp">
           <div className="btnrow">
-            <button className="btn primary" onClick={() => setRunning(r => !r)}>
+            <button className="btn primary" onClick={() => { guideRunRemaining.current = 0; setRunning(r => !r); }}>
               {running ? '❚❚ Pause' : '▶ Train'}
             </button>
             <button className="btn" onClick={step} disabled={running}>Epoch</button>
           </div>
           <div className="btnrow" style={{ marginTop: 6 }}>
-            <button className="btn" onClick={() => { setRunning(false); rebuild(); }}>Reset filters</button>
+            <button className="btn" onClick={() => { setRunning(false); guideRunRemaining.current = 0; rebuild(); }}>Reset filters</button>
           </div>
         </div>
       </aside>

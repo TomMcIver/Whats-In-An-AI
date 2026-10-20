@@ -25,7 +25,12 @@ const chapters: {
     takeaway: 'Draw an image and inspect its feature maps', art: 'art-conv',
   },
   {
-    id: 'attention', number: '04', eyebrow: 'Learning what matters', title: 'Attention',
+    id: 'embeddings', number: '04', eyebrow: 'Learning relationships', title: 'Embeddings',
+    description: 'Train tiny word vectors on a curated context task and watch neighbours take shape in 2D.',
+    takeaway: 'Compare learned positions and context predictions', art: 'art-embeddings',
+  },
+  {
+    id: 'attention', number: '05', eyebrow: 'Learning what matters', title: 'Attention',
     description: 'Train a tiny sequence model and see which earlier tokens each attention head reads.',
     takeaway: 'Reveal the pattern behind a copy task', art: 'art-attention',
   },
@@ -68,7 +73,10 @@ function NetworkArtwork() {
   );
 }
 
-export function HomePage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
+export function HomePage({ onNavigate, onStartGuide }: {
+  onNavigate: (page: PageId) => void;
+  onStartGuide: () => void;
+}) {
   return (
     <div className="home-page">
       <header className="home-nav">
@@ -90,18 +98,18 @@ export function HomePage({ onNavigate }: { onNavigate: (page: PageId) => void })
             <h1>AI makes more sense<br />when you can <em>see it learn.</em></h1>
             <p className="hero-description">From the first decision boundary to the attention inside a language model, explore what happens beneath the surface.</p>
             <div className="hero-actions">
-              <a href="#journey" className="button-dark">Explore the models <span aria-hidden>↓</span></a>
-              <a href="#approach" className="text-link">How this project works <span aria-hidden>↗</span></a>
+              <button className="button-dark" onClick={onStartGuide}>Start the XOR walkthrough <span aria-hidden>→</span></button>
+              <a href="#journey" className="text-link">Explore the labs <span aria-hidden>↓</span></a>
             </div>
             <div className="hero-note"><span className="note-line" /> BUILT FROM SCRATCH · RUNS IN YOUR BROWSER</div>
           </div>
           <div className="hero-art-wrap">
-            <div className="art-label art-label-top"><span>THE HIDDEN LAYERS</span><i>01 — 04</i></div>
+            <div className="art-label art-label-top"><span>THE HIDDEN LAYERS</span><i>01 — 05</i></div>
             <NetworkArtwork />
             <div className="art-caption"><span className="caption-mark">↗</span><span>Signals move forward.<br /><b>Learning moves the weights.</b></span></div>
             <div className="hero-index">A SMALL WINDOW INTO<br />HOW MODELS WORK</div>
           </div>
-          <div className="hero-bottomline"><span>01 / 04</span><span>START WITH A QUESTION. LEAVE WITH A MENTAL MODEL.</span><span>SCROLL TO EXPLORE ↓</span></div>
+          <div className="hero-bottomline"><span>01 / 05</span><span>START WITH A QUESTION. LEAVE WITH A MENTAL MODEL.</span><span>SCROLL TO EXPLORE ↓</span></div>
         </section>
 
         <section className="intro-band" id="approach">
@@ -125,6 +133,7 @@ export function HomePage({ onNavigate }: { onNavigate: (page: PageId) => void })
                     {chapter.id === 'classical' && <><span className="scatter-dot d1"/><span className="scatter-dot d2"/><span className="scatter-dot d3"/><span className="scatter-dot d4"/><span className="scatter-dot d5"/><span className="scatter-dot d6"/><span className="fit-line"/><span className="scatter-axis x"/><span className="scatter-axis y"/></>}
                     {chapter.id === 'nn' && <NetworkArtwork />}
                     {chapter.id === 'conv' && <div className="conv-tiles"><span>░▒</span><span>▒█</span><span>░█</span><span>██</span><span>▒░</span><span>██</span><span>█▒</span><span>░▒</span><span>▒█</span></div>}
+                    {chapter.id === 'embeddings' && <div className="embedding-art"><span className="embedding-axis embedding-axis-x"/><span className="embedding-axis embedding-axis-y"/><i className="embedding-point ep-one"/><i className="embedding-point ep-two"/><i className="embedding-point ep-three"/><i className="embedding-point ep-four"/><i className="embedding-point ep-five"/><i className="embedding-point ep-six"/><span className="embedding-art-label label-one">cat</span><span className="embedding-art-label label-two">dog</span><span className="embedding-art-label label-three">car</span></div>}
                     {chapter.id === 'attention' && <div className="attention-grid">{Array.from({ length: 64 }, (_, i) => <i key={i} style={{ opacity: i % 9 === 0 || i % 11 === 0 ? .9 : i % 7 === 0 ? .5 : .13 }} />)}</div>}
                   </div>
                   <span className="chapter-arrow" aria-hidden>↗</span>

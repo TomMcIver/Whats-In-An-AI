@@ -80,7 +80,7 @@ function AttnMatrix({ attn, tokens, title }: { attn: number[][]; tokens: number[
   );
 }
 
-export function AttentionLab() {
+export function AttentionLab({ guideAction }: { guideAction?: { step: number; id: number } | null }) {
   const [heads, setHeads] = useState(2);
   const [dim, setDim] = useState(24);
   const [lr, setLr] = useState(0.05);
@@ -94,6 +94,8 @@ export function AttentionLab() {
   const test = useMemo(() => makeBatch(48, seed + 800), [seed]);
 
   const mRef = useRef<AttentionModel | null>(null);
+  const guideRunRemaining = useRef(0);
+  const handledGuideAction = useRef<number | null>(null);
   if (!mRef.current) mRef.current = new AttentionModel(dim, heads, seed);
 
   const rebuild = useCallback(() => {
@@ -101,13 +103,32 @@ export function AttentionLab() {
     setTick(t => t + 1);
   }, [dim, heads, seed]);
 
-  useEffect(() => { setRunning(false); rebuild(); }, [rebuild]);
+  useEffect(() => { setRunning(false); guideRunRemaining.current = 0; rebuild(); }, [rebuild]);
+
+  useEffect(() => {
+    if (!guideAction || handledGuideAction.current === guideAction.id) return;
+    handledGuideAction.current = guideAction.id;
+    guideRunRemaining.current = 0;
+    setRunning(false);
+    if (guideAction.step === 0) {
+      setHeads(2); setDim(24); setLr(0.05); setSeed(4);
+      setBatchN(64); setProbeSeed(31);
+      mRef.current = new AttentionModel(24, 2, 4);
+      setTick(t => t + 1);
+    } else if (guideAction.step === 1) {
+      guideRunRemaining.current = 100;
+      setRunning(true);
+    } else if (guideAction.step === 2) {
+      setProbeSeed(57);
+    }
+  }, [guideAction]);
 
   const m = mRef.current!;
 
   const step = useCallback(() => {
     mRef.current!.trainEpoch(train, lr);
     setTick(t => t + 1);
+    if (guideRunRemaining.current > 0 && --guideRunRemaining.current === 0) setRunning(false);
   }, [train, lr]);
 
   useEffect(() => {
@@ -175,13 +196,13 @@ export function AttentionLab() {
 
         <div className="grp">
           <div className="btnrow">
-            <button className="btn primary" onClick={() => setRunning(r => !r)}>
+            <button className="btn primary" onClick={() => { guideRunRemaining.current = 0; setRunning(r => !r); }}>
               {running ? '❚❚ Pause' : '▶ Train'}
             </button>
             <button className="btn" onClick={step} disabled={running}>Epoch</button>
           </div>
           <div className="btnrow" style={{ marginTop: 6 }}>
-            <button className="btn" onClick={() => { setRunning(false); rebuild(); }}>Reset weights</button>
+            <button className="btn" onClick={() => { setRunning(false); guideRunRemaining.current = 0; rebuild(); }}>Reset weights</button>
           </div>
         </div>
       </aside>

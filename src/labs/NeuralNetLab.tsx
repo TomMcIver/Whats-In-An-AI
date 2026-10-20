@@ -16,7 +16,7 @@ import {
 import { NetworkGraph } from '../components/NetworkGraph.tsx';
 import { LossChart, BoundaryChart } from '../components/Charts.tsx';
 
-export function NeuralNetLab() {
+export function NeuralNetLab({ guideAction }: { guideAction?: { step: number; id: number } | null }) {
   /* ---------- configuration ---------- */
   const [dataset, setDataset] = useState<DatasetKind>('circle');
   const [noise, setNoise] = useState(0.06);
@@ -45,6 +45,9 @@ export function NeuralNetLab() {
   const sizes = useMemo(() => [features.length, ...hidden, 1], [features, hidden]);
 
   const netRef = useRef<MLP | null>(null);
+  const guideRunRemaining = useRef(0);
+  const handledGuideAction = useRef<number | null>(null);
+  const [guideHiddenRun, setGuideHiddenRun] = useState(false);
   if (!netRef.current) netRef.current = new MLP({ sizes, hiddenAct: act, seed });
   const net = netRef.current;
 
@@ -54,8 +57,35 @@ export function NeuralNetLab() {
     setTrainLoss([]); setTestLoss([]); setSelected(null); setTick(t => t + 1);
   }, [sizes, act, seed]);
 
-  useEffect(() => { rebuild(); }, [rebuild]);
-  useEffect(() => { setRunning(false); }, [dataset, nSamples, noise]);
+  useEffect(() => { setRunning(false); guideRunRemaining.current = 0; rebuild(); }, [rebuild]);
+  useEffect(() => { setRunning(false); guideRunRemaining.current = 0; }, [dataset, nSamples, noise]);
+
+  useEffect(() => {
+    if (handledGuideAction.current === guideAction?.id || !guideAction) return;
+    handledGuideAction.current = guideAction.id;
+    guideRunRemaining.current = 0;
+    setRunning(false);
+    if (guideAction.step === 0) {
+      setDataset('xor'); setNoise(0.06); setNSamples(240);
+      setFeatures(['x', 'y']); setHidden([]); setAct('tanh');
+      setLr(0.3); setBatchSize(10); setSeed(11);
+      netRef.current = new MLP({ sizes: [2, 1], hiddenAct: 'tanh', task: 'classification', seed: 11 });
+      setTrainLoss([]); setTestLoss([]); setSelected(null); setTick(t => t + 1);
+    } else if (guideAction.step === 1) {
+      guideRunRemaining.current = 120;
+      setRunning(true);
+    } else if (guideAction.step === 2) {
+      setHidden([4]);
+      setGuideHiddenRun(true);
+    }
+  }, [guideAction]);
+
+  useEffect(() => {
+    if (!guideHiddenRun || hidden.length !== 1 || hidden[0] !== 4) return;
+    setGuideHiddenRun(false);
+    guideRunRemaining.current = 240;
+    setRunning(true);
+  }, [guideHiddenRun, hidden]);
 
   const xy = useMemo(() => {
     const enc = (pts: Point[]) => ({
@@ -74,6 +104,7 @@ export function NeuralNetLab() {
     setTrainLoss(a => [...a.slice(-299), tl]);
     setTestLoss(a => [...a.slice(-299), vl]);
     setTick(t => t + 1);
+    if (guideRunRemaining.current > 0 && --guideRunRemaining.current === 0) setRunning(false);
   }, [xy, lr, batchSize]);
 
   // A timer rather than requestAnimationFrame: rAF is throttled to zero in
@@ -184,13 +215,13 @@ export function NeuralNetLab() {
 
         <div className="grp">
           <div className="btnrow">
-            <button className="btn primary" onClick={() => setRunning(r => !r)}>
+            <button className="btn primary" onClick={() => { guideRunRemaining.current = 0; setRunning(r => !r); }}>
               {running ? '❚❚ Pause' : '▶ Train'}
             </button>
             <button className="btn" onClick={stepOnce} disabled={running}>Step</button>
           </div>
           <div className="btnrow" style={{ marginTop: 6 }}>
-            <button className="btn" onClick={() => { setRunning(false); rebuild(); }}>Reset weights</button>
+            <button className="btn" onClick={() => { setRunning(false); guideRunRemaining.current = 0; rebuild(); }}>Reset weights</button>
           </div>
         </div>
       </aside>
