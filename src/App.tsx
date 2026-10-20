@@ -1,48 +1,66 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NeuralNetLab } from './labs/NeuralNetLab.tsx';
 import { ClassicalLab } from './labs/ClassicalLab.tsx';
 import { ConvLab } from './labs/ConvLab.tsx';
 import { AttentionLab } from './labs/AttentionLab.tsx';
+import { HomePage } from './HomePage.tsx';
 
-type TabId = 'nn' | 'classical' | 'conv' | 'attention';
+export type PageId = 'home' | 'classical' | 'nn' | 'conv' | 'attention';
 
-const TABS: { id: TabId; label: string; ready: boolean }[] = [
-  { id: 'nn',        label: 'Neural Network', ready: true },
-  { id: 'classical', label: 'Classical',      ready: true },
-  { id: 'conv',      label: 'Convolution',    ready: true },
-  { id: 'attention', label: 'Attention',      ready: true },
+const PAGES: { id: PageId; label: string }[] = [
+  { id: 'classical', label: 'Classical ML' },
+  { id: 'nn', label: 'Neural nets' },
+  { id: 'conv', label: 'Convolution' },
+  { id: 'attention', label: 'Attention' },
 ];
 
+function readPage(): PageId {
+  const route = window.location.hash.replace(/^#\/?/, '');
+  if (route === 'classical' || route === 'nn' || route === 'conv' || route === 'attention') return route;
+  return 'home';
+}
+
 export default function App() {
-  const [tab, setTab] = useState<TabId>('nn');
+  const [page, setPage] = useState<PageId>(readPage);
+
+  useEffect(() => {
+    const syncPage = () => setPage(readPage());
+    window.addEventListener('hashchange', syncPage);
+    return () => window.removeEventListener('hashchange', syncPage);
+  }, []);
+
+  const navigate = (next: PageId) => {
+    const hash = next === 'home' ? '#/' : `#/${next}`;
+    if (window.location.hash === hash) setPage(next);
+    else window.location.hash = hash;
+  };
 
   return (
     <div className="app">
-      <header className="topbar">
-        <div className="logo">
-          <span className="logo-mark" aria-hidden />
-          <div>
-            <h1>What's In An AI</h1>
-            <p>Models you can actually train, running in your browser</p>
-          </div>
-        </div>
-        <nav className="tabs">
-          {TABS.map(t => (
-            <button key={t.id}
-                    className={'tab' + (tab === t.id ? ' on' : '')}
-                    onClick={() => setTab(t.id)}
-                    disabled={!t.ready}
-                    title={t.ready ? undefined : 'Not built yet'}>
-              {t.label}
+      {page === 'home' ? (
+        <HomePage onNavigate={navigate} />
+      ) : (
+        <>
+          <header className="topbar lab-topbar">
+            <button className="brand-button" onClick={() => navigate('home')} aria-label="Back to What's In An AI home">
+              <span className="logo-mark" aria-hidden />
+              <span className="brand-name">What's In An AI</span>
             </button>
-          ))}
-        </nav>
-      </header>
-
-      {tab === 'nn' && <NeuralNetLab />}
-      {tab === 'classical' && <ClassicalLab />}
-      {tab === 'conv' && <ConvLab />}
-      {tab === 'attention' && <AttentionLab />}
+            <nav className="tabs" aria-label="Model labs">
+              {PAGES.map(item => (
+                <button key={item.id} className={'tab' + (page === item.id ? ' on' : '')}
+                        aria-current={page === item.id ? 'page' : undefined}
+                        onClick={() => navigate(item.id)}>{item.label}</button>
+              ))}
+            </nav>
+            <button className="back-home" onClick={() => navigate('home')}>← Overview</button>
+          </header>
+          {page === 'classical' && <ClassicalLab />}
+          {page === 'nn' && <NeuralNetLab />}
+          {page === 'conv' && <ConvLab />}
+          {page === 'attention' && <AttentionLab />}
+        </>
+      )}
     </div>
   );
 }
